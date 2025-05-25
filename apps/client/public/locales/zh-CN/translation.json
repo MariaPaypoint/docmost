@@ -383,5 +383,16 @@
   "Publicly shared pages from spaces you are a member of will appear here": "您所在空间的公开共享页面会显示在此处",
   "Share deleted successfully": "分享已成功删除",
   "Share not found": "未找到分享",
-  "Failed to share page": "页面分享失败"
+  "Failed to share page": "页面分享失败",
+  "Embed URL": "嵌入链接",
+  "Embed Any url": "嵌入任何url链接",
+  "Bullet list": "无序列表",
+  "Numbered list": "有序列表",
+  "Embed Airtable": "嵌入Airtable看板",
+  "Embed Loom video": "嵌入Loom视频",
+  "Embed Google Drive content": "嵌入GoogleDrive云盘",
+  "Embed Google Sheets content": "嵌入GoogleSheets表格",
+  "Embed Figma files": "嵌入Figma设计",
+  "Embed Typeform": "嵌入Typeform问卷",
+  "Embed Miro board": "嵌入Miro白板"
 }

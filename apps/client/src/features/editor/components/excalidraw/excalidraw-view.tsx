@@ -150,6 +150,7 @@ export default function ExcalidrawView(props: NodeViewProps) {
                 scrollToContent: true,
               }}
               theme={computedColorScheme}
+              validateEmbeddable={() => true}
             />
           </Suspense>
         </div>

@@ -2,10 +2,16 @@ export interface IEmbedProvider {
   id: string;
   name: string;
   regex: RegExp;
-  getEmbedUrl: (match: RegExpMatchArray, url?: string) => string;
+  getEmbedUrl: (match: RegExpMatchArray, url: string) => string;
 }
 
 export const embedProviders: IEmbedProvider[] = [
+  {
+    id: 'generic',
+    name: 'URL',
+    regex: /^https?:\/\/[^\s\/$.?#].[^\s]*$/,
+    getEmbedUrl: (match, url) => url
+  },
   {
     id: 'loom',
     name: 'Loom',
