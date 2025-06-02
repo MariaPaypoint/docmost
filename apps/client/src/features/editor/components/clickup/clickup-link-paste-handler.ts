@@ -31,25 +31,42 @@ const handleClickUpLinkPaste = (editor: Editor) => {
     // We need to focus the editor to ensure the content is inserted at cursor position
     editor.view.focus();
     
-    // Insert the link with proper attributes
+    // Insert the link with proper attributes followed by a space
     editor.commands.insertContent({
       type: 'paragraph',
-      content: [{
-        type: 'text',
-        text: clipboardText,
-        marks: [
-          {
-            type: 'link',
-            attrs: {
-              href: clipboardText,
-              target: '_blank',
-              rel: 'noopener noreferrer',
-              class: 'clickup-link'
+      content: [
+        {
+          type: 'text',
+          text: clipboardText,
+          marks: [
+            {
+              type: 'link',
+              attrs: {
+                href: clipboardText,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                class: 'clickup-link'
+              }
             }
-          }
-        ]
-      }]
+          ]
+        },
+        // Add a space after the link for better cursor visibility
+        {
+          type: 'text',
+          text: ' '
+        }
+      ]
     });
+    
+    // Make sure cursor is visible after insertion by moving it after the link+space
+    // Focus is already set, so just make sure the cursor is in the right position
+    editor.commands.focus();
+    
+    // In some cases we need to wait a bit for the cursor to be positioned correctly
+    setTimeout(() => {
+      // Explicitly position the cursor at the end of the inserted content
+      editor.commands.focus('end');
+    }, 0);
     
     // Try to fetch task data to enhance the link
     try {
