@@ -23,17 +23,31 @@
 .clickup-link-container {
   display: inline-flex;
   align-items: center;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
   border-radius: 4px;
   padding: 4px 8px;
   max-width: 300px;
   transition: all 0.2s ease;
+  
+  /* Адаптивные цвета для светлой/темной темы */
+  background-color: var(--mantine-color-gray-0, #f8f9fa);
+  border: 1px solid var(--mantine-color-gray-3, #dee2e6);
+  color: var(--mantine-color-text, inherit);
 }
 
 .clickup-link-container:hover {
-  background-color: #f1f3f5;
-  border-color: #ced4da;
+  background-color: var(--mantine-color-gray-1, #f1f3f5);
+  border-color: var(--mantine-color-gray-4, #ced4da);
+}
+
+/* Стили для темной темы через CSS-атрибуты Mantine */
+[data-mantine-color-scheme="dark"] .clickup-link-container {
+  background-color: var(--mantine-color-dark-6, #25262b);
+  border-color: var(--mantine-color-dark-4, #373a40);
+}
+
+[data-mantine-color-scheme="dark"] .clickup-link-container:hover {
+  background-color: var(--mantine-color-dark-5, #2c2e33);
+  border-color: var(--mantine-color-dark-3, #5c5f66);
 }
 
 /* Индикатор статуса задачи */
