@@ -97,19 +97,68 @@ export const ClickUpLinkExtension = Extension.create({
                   const generateClickUpLinkHtml = (taskData: any) => {
                     const taskName = taskData?.name || 'Задача ClickUp';
                     const statusColor = taskData?.status?.color || '#ddd';
+                    const statusText = taskData?.status?.status || 'Статус';
                     
+                    // Get priority info and determine color
+                    let priorityColor = '#999'; // default gray
+                    const priorityName = taskData?.priority?.priority || '';
+                    if (priorityName) {
+                      if (priorityName.toLowerCase().includes('urgent')) {
+                        priorityColor = '#f50000'; // red for urgent
+                      } else if (priorityName.toLowerCase().includes('high')) {
+                        priorityColor = '#ff9800'; // orange for high
+                      } else if (priorityName.toLowerCase().includes('normal')) {
+                        priorityColor = '#096dd9'; // blue for normal
+                      } else if (priorityName.toLowerCase().includes('low')) {
+                        priorityColor = '#999'; // gray for low
+                      }
+                    }
+                    
+                    // Get assignees - проверяем корректно
+                    let assigneeNames = 'Не назначено';
+                    if (taskData?.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
+                      assigneeNames = taskData.assignees
+                        .filter(a => a && a.username) // Проверяем каждого assignee
+                        .map(a => a.username)
+                        .join(', ');
+                    }
+                    
+                    // Create custom tooltip HTML
+                    const tooltipHtml = `
+                      <div class="clickup-custom-tooltip">
+                        <div class="clickup-tooltip-status" style="background-color: ${statusColor}">
+                          <span>${statusText}</span>
+                        </div>
+                        ${priorityName ? `
+                        <div class="clickup-tooltip-priority">
+                          <span class="clickup-priority-flag" style="background-color: ${priorityColor}"></span>
+                          <span>${priorityName}</span>
+                        </div>
+                        ` : ''}
+                        <div class="clickup-tooltip-assignees">
+                          <span>👤 ${assigneeNames}</span>
+                        </div>
+                      </div>
+                    `;
+                    
+                    // Создаем единую кликабельную ссылку на весь контейнер
                     return `
-                      <span class="clickup-link-container">
-                        <span class="clickup-task-status" style="background-color: ${statusColor}"></span>
-                        <span class="clickup-task-name">${taskName}</span>
-                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="clickup-external-link">
-                          <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" />
-                            <path d="M11 13l9 -9" />
-                            <path d="M15 4h5v5" />
-                          </svg>
+                      <span class="clickup-link-container" data-task-id="${taskData?.id || ''}">
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="clickup-link-content">
+                          <span class="clickup-task-status" style="background-color: ${statusColor}"></span>
+                          <span class="clickup-task-name">${taskName}</span>
+                          <span class="clickup-external-link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" />
+                              <path d="M11 13l9 -9" />
+                              <path d="M15 4h5v5" />
+                            </svg>
+                          </span>
                         </a>
+                        <div class="clickup-tooltip-wrapper">
+                          ${tooltipHtml}
+                        </div>
                       </span>
                     `;
                   };
