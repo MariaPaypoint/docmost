@@ -25,7 +25,7 @@
   align-items: center;
   border-radius: 4px;
   padding: 4px 8px;
-  max-width: 300px;
+  max-width: 450px;
   transition: all 0.2s ease;
   
   /* Адаптивные цвета для светлой/темной темы */
@@ -66,7 +66,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 250px;
+  max-width: 400px;
 }
 
 /* Иконка внешней ссылки */
@@ -95,7 +95,7 @@
 
 /* Tooltip styling */
 .clickup-tooltip {
-  max-width: 300px;
+  max-width: 450px;
 }
 
 .clickup-tooltip-status {
