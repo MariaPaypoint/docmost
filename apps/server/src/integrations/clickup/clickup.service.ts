@@ -14,11 +14,11 @@ export class ClickUpService {
     // Get API key from environment variables
     this.apiKey = this.configService.get<string>('CLICKUP_API_KEY');
     
-    // Проверка наличия API ключа при инициализации
+    // Check if API key is available during initialization
     if (!this.apiKey) {
-      this.logger.warn('ВНИМАНИЕ: CLICKUP_API_KEY не настроен в переменных среды');
+      this.logger.warn('WARNING: CLICKUP_API_KEY is not configured in environment variables');
     } else {
-      this.logger.log('ClickUp API key настроен успешно (маскирован): ' + 
+      this.logger.log('ClickUp API key configured successfully (masked): ' + 
                     this.apiKey.substring(0, 4) + '***' + this.apiKey.substring(this.apiKey.length - 4));
     }
   }
@@ -30,22 +30,22 @@ export class ClickUpService {
    * @returns Task data with name, status, and other details
    */
   async getTaskDetails(taskId: string) {
-    this.logger.log(`Получен запрос на получение задачи ClickUp: ${taskId}`);
+    this.logger.log(`Received request for ClickUp task: ${taskId}`);
     try {
       // Check if API key is configured
       if (!this.apiKey) {
-        this.logger.error('ClickUp API key не настроен в переменных окружения');
+        this.logger.error('ClickUp API key is not configured in environment variables');
         throw new HttpException(
           'ClickUp API key not configured',
           HttpStatus.SERVICE_UNAVAILABLE,
         );
       }
 
-      this.logger.log(`API ключ ClickUp найден, отправляем запрос к API для задачи: ${taskId}`);
+      this.logger.log(`Sending API request for task: ${taskId}`);
       try {
         // Fetch task data from ClickUp API
         const url = `${this.apiBaseUrl}/task/${taskId}`;
-        this.logger.log(`Запрос к URL: ${url}`);
+        this.logger.debug(`Request URL: ${url}`);
         
         const response = await axios.get(url, {
           headers: {
@@ -54,7 +54,8 @@ export class ClickUpService {
           timeout: 10000, // 10 seconds timeout
         });
 
-        this.logger.log(`Получен ответ от API ClickUp: ${JSON.stringify(response.data, null, 2)}`);
+        // this.logger.log(`Получен ответ от API ClickUp: ${JSON.stringify(response.data, null, 2)}`);
+        this.logger.log(`Получен ответ от API ClickUp`);
 
         const data = response.data;
         

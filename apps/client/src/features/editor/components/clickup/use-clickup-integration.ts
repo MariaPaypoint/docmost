@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Editor } from '@tiptap/core';
-import { handleClickUpLinkPaste } from './clickup-link-paste-handler';
+import handleClickUpLinkPaste from './clickup-link-paste-handler';
 import './clickup-styles.css'; // Импорт стилей для ClickUp интеграции
 
 /**

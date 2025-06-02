@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
-import {
-  Anchor,
-  Box,
-  Card,
-  Flex,
-  Loader,
-  Text,
-  Tooltip,
-} from '@mantine/core';
+import { Anchor, Badge, Box, Card, Flex, Group, Loader, Text, Tooltip } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
-import { ClickUpApi } from './clickup-api';
+import { useClickUpTask } from './use-clickup-task';
+import { ClickUpTaskManager } from './use-clickup-task';
 import ClickUpTaskTooltip from './clickup-link-tooltip';
 
 interface ClickUpTask {
@@ -42,109 +35,68 @@ export default function ClickUpLinkView({
   updateAttributes,
   deleteNode
 }: NodeViewProps) {
-  const [task, setTask] = useState<ClickUpTask | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const url = node.attrs.href;
-  const taskId = node.attrs.taskId || ClickUpApi.extractTaskId(url);
+  // Use the centralized task data hook
+  const taskUrl = node.attrs.href;
+  const taskId = node.attrs.taskId || ClickUpTaskManager.extractTaskId(taskUrl);
+  const { task, loading: isLoading, error } = useClickUpTask(taskId);
 
-  useEffect(() => {
-    // If no taskId is found, mark as error
-    if (!taskId) {
-      setLoading(false);
-      setError('Недопустимый URL задачи ClickUp');
-      return;
-    }
+  // Use either API data or existing node attributes
+  const displayName = task?.name || node.attrs.taskName || 'Unknown task';
+  const statusColor = task?.status?.color || node.attrs.taskStatusColor || '#ddd';
+  const statusLabel = task?.status?.status || node.attrs.taskStatus || 'Unknown status';
 
-    // Если у нас уже есть кэшированные данные в атрибутах, используем их сразу
-    if (node.attrs.taskName && node.attrs.taskStatusColor) {
-      setLoading(false);
-      return;
-    }
-    
-    // Fetch task data from API
-    ClickUpApi.getTask(taskId)
-      .then((data) => {
-        setTask(data);
-      })
-      .catch((err) => {
-        console.error('Error fetching ClickUp task:', err);
-        setError('Ошибка получения данных задачи');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [taskId]);
-
-  // Вид при загрузке
-  if (loading) {
+  // Loading view
+  if (isLoading) {
     return (
       <NodeViewWrapper className="clickup-link-view">
-        <Card withBorder padding="xs" radius="md" className="clickup-task-card">
-          <Flex align="center" gap="xs">
-            <Box w={12} h={12} style={{ borderRadius: '50%', backgroundColor: '#ddd' }} className="clickup-task-status" />
+        <Card p="xs" className="clickup-task-card" withBorder radius="sm">
+          <Group justify="space-between" gap="xs">
+            <Box style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#ddd' }} className="clickup-task-status" />
             <Loader size="xs" />
-            <Text size="sm">Загрузка задачи...</Text>
-          </Flex>
+            <Text size="sm">Loading task...</Text>
+          </Group>
         </Card>
       </NodeViewWrapper>
     );
   }
 
-  // Вид при ошибке
+  // Error view
   if (error) {
     return (
       <NodeViewWrapper className="clickup-link-view">
-        <Tooltip label={error}>
-          <Anchor href={url} target="_blank" rel="noopener noreferrer" className="clickup-link-error">
-            {url}
-          </Anchor>
-        </Tooltip>
+        <Card p="xs" className="clickup-task-card" withBorder radius="sm">
+          <Group justify="space-between" gap="xs">
+            <Box style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#ff0000' }} className="clickup-task-status" />
+            <Text size="sm" color="red">Error loading task</Text>
+            <Anchor href={taskUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+              <IconExternalLink size={14} />
+            </Anchor>
+          </Group>
+        </Card>
       </NodeViewWrapper>
     );
   }
 
-  // Используем кэшированные данные из атрибутов ноды или данные из API-запроса
-  const taskName = node.attrs.taskName || (task?.name || 'Неизвестная задача');
-  const statusColor = node.attrs.taskStatusColor || (task?.status?.color || '#ddd');
-  const statusLabel = node.attrs.taskStatus || (task?.status?.status || 'Статус неизвестен');
-  
+  // Normal view with task data
   return (
     <NodeViewWrapper className="clickup-link-view">
       <Tooltip
-        label={task ? <ClickUpTaskTooltip task={task} /> : `Статус: ${statusLabel}`}
-        position="bottom"
+        label={<ClickUpTaskTooltip task={task} />}
         withArrow
-        transitionProps={{ transition: 'pop' }}
+        position="top"
+        multiline
+        style={{ width: 320 }}
       >
-        <Card 
-          withBorder 
-          padding="xs" 
-          radius="md" 
-          className="clickup-task-card"
-        >
-          <Flex align="center" gap="xs">
-            <Box 
-              w={12} 
-              h={12} 
-              className="clickup-task-status" 
-              style={{ backgroundColor: statusColor }} 
-            />
-            <Text fw={500} truncate>
-              {taskName}
-            </Text>
-            
-            <Tooltip label="Открыть в ClickUp">
-              <Anchor 
-                href={url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="clickup-external-link"
-              >
-                <IconExternalLink size={14} style={{ marginLeft: 4 }} />
-              </Anchor>
-            </Tooltip>
-          </Flex>
+        <Card p="xs" className="clickup-task-card" withBorder radius="sm">
+          <Group justify="space-between" gap="xs" wrap="nowrap">
+            <Group gap="xs" wrap="nowrap">
+              <Box style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: statusColor }} className="clickup-task-status" />
+              <Text size="sm" truncate>{displayName}</Text>
+            </Group>
+            <Anchor href={taskUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+              <IconExternalLink size={14} />
+            </Anchor>
+          </Group>
         </Card>
       </Tooltip>
     </NodeViewWrapper>

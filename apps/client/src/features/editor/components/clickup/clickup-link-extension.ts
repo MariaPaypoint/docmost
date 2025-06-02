@@ -2,7 +2,7 @@ import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 import { Node as ProseMirrorNode } from 'prosemirror-model';
-import { ClickUpApi } from './clickup-api';
+import { ClickUpTaskManager } from './use-clickup-task';
 
 /**
  * Extension to detect and render ClickUp links with task status and name
@@ -12,6 +12,7 @@ export const ClickUpLinkExtension = Extension.create({
 
   addProseMirrorPlugins() {
     const clickUpURLRegex = /https:\/\/app\.clickup\.com\/t\/([a-z0-9]+)/i;
+    // Cache for task data to avoid redundant API calls
     const taskCache: Record<string, any> = {};
 
     return [
@@ -32,7 +33,7 @@ export const ClickUpLinkExtension = Extension.create({
               
               if (linkMark) {
                 const url = linkMark.attrs.href || '';
-                const taskId = ClickUpApi.extractTaskId(url);
+                const taskId = ClickUpTaskManager.extractTaskId(url);
                 
                 // If this is a ClickUp link
                 if (taskId) {
@@ -99,7 +100,7 @@ export const ClickUpLinkExtension = Extension.create({
                         span.innerHTML = `
                           <span class="clickup-link-container">
                             <span class="clickup-task-status" style="background-color: #ddd"></span>
-                            <span class="clickup-task-name">Загрузка задачи...</span>
+                            <span class="clickup-task-name">Loading task...</span>
                           </span>
                         `;
                         return span;
@@ -112,24 +113,17 @@ export const ClickUpLinkExtension = Extension.create({
                         class: 'clickup-link-hidden',
                       })
                     );
-                    
-                    // Fetch task data
-                    ClickUpApi.getTask(taskId)
+                    // Fetch task data using centralized manager
+                    ClickUpTaskManager.getTask(taskId)
                       .then(taskData => {
-                        console.log('[ClickUpExt] Получены данные задачи:', taskData);
-                        // Store in cache
+                        // Store in local cache for fast rendering
                         taskCache[taskId] = taskData;
                         
                         // Force re-render decorations
                         this.editor?.view.dispatch(this.editor.state.tr);
                       })
                       .catch(error => {
-                        console.error('[ClickUpExt] Ошибка при получении задачи:', error);
-                        // Store error state in cache
-                        taskCache[taskId] = { error: true };
-                        
-                        // Force re-render decorations
-                        this.editor?.view.dispatch(this.editor.state.tr);
+                        console.error('[ClickUpExt] Error fetching task:', error);
                       });
                   }
                 }
@@ -153,11 +147,11 @@ export const ClickUpLinkExtension = Extension.create({
               return true; // Prevent default link behavior for the rest
             }
             return false;
-          },
+          }
         }
-      }),
+      })
     ];
-  },
+  }
 });
 
 // Add CSS for ClickUp links
