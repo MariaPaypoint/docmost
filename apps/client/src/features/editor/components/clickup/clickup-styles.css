@@ -1,0 +1,119 @@
+/* Styles for ClickUp links in the editor */
+
+/* Скрываем оригинальный текст ссылки */
+.clickup-link-hidden {
+  display: inline-block;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Виджет ссылки ClickUp */
+.clickup-link-widget {
+  display: inline-flex;
+  position: relative;
+  margin: 0 2px;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  cursor: default;
+}
+
+/* Контейнер для содержимого ссылки */
+.clickup-link-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 4px 8px;
+  max-width: 300px;
+  transition: all 0.2s ease;
+}
+
+.clickup-link-container:hover {
+  background-color: #f1f3f5;
+  border-color: #ced4da;
+}
+
+/* Индикатор статуса задачи */
+.clickup-task-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+/* Название задачи */
+.clickup-task-name {
+  font-weight: 500;
+  margin-right: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+/* Иконка внешней ссылки */
+.clickup-external-link {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.clickup-external-link:hover {
+  opacity: 1;
+}
+
+/* Состояние загрузки */
+.clickup-link-loading .clickup-task-name {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+/* Состояние ошибки */
+.clickup-link-error {
+  color: #fa5252;
+  text-decoration: underline wavy;
+}
+
+/* Tooltip styling */
+.clickup-tooltip {
+  max-width: 300px;
+}
+
+.clickup-tooltip-status {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.clickup-tooltip-status-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.clickup-tooltip-priority {
+  margin-bottom: 4px;
+}
+
+.clickup-tooltip-assignees {
+  margin-top: 8px;
+}
+
+.clickup-tooltip-assignee {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.clickup-tooltip-assignee-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 4px;
+}

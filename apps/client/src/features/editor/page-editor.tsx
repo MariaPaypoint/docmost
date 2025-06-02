@@ -14,6 +14,7 @@ import {
   WebSocketStatus,
 } from "@hocuspocus/provider";
 import { EditorContent, EditorProvider, useEditor } from "@tiptap/react";
+import { useClickUpIntegration } from "./components/clickup/use-clickup-integration";
 import {
   collabExtensions,
   mainExtensions,
@@ -236,6 +237,9 @@ export default function PageEditor({
       );
     };
   }, []);
+
+  // Initialize ClickUp integration once editor is ready
+  useClickUpIntegration(editor);
 
   useEffect(() => {
     setActiveCommentId(null);
