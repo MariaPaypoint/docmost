@@ -193,10 +193,13 @@ export const ClickUpLinkExtension = Extension.create({
                                     'Not assigned';
                     }
                     
-                    // Create HTML for priority flag
+                    // Create HTML for priority flag with SVG icon
                     const priorityFlagHtml = priorityName ? `
                       <div class="clickup-tooltip-priority">
-                        <span class="clickup-priority-flag" style="background-color: ${priorityColor}"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${priorityColor}" style="min-width: 16px">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M19 4c.852 0 1.297 .986 .783 1.623l-.076 .084l-3.792 3.793l3.792 3.793c.603 .602 .22 1.614 -.593 1.701l-.114 .006h-13v6a1 1 0 0 1 -.883 .993l-.117 .007a1 1 0 0 1 -.993 -.883l-.007 -.117v-16a1 1 0 0 1 .883 -.993l.117 -.007h14z" />
+                        </svg>
                         <span>${priorityName}</span>
                       </div>
                     ` : '';
