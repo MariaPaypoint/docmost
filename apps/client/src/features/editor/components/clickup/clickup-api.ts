@@ -119,8 +119,7 @@ export const ClickUpApi = {
             listName: taskData.listName || null,
           };
           
-          // For debugging, output the full task data
-          console.log('ClickUp Raw Task Data:', taskData);
+          // Task data successfully loaded and formatted
           
           // Save to cache
           taskCache[taskId] = {

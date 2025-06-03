@@ -60,13 +60,8 @@ const handleClickUpLinkPaste = (editor: Editor) => {
     
     // Make sure cursor is visible after insertion by moving it after the link+space
     // Focus is already set, so just make sure the cursor is in the right position
+    // Focus editor without changing cursor position
     editor.commands.focus();
-    
-    // In some cases we need to wait a bit for the cursor to be positioned correctly
-    setTimeout(() => {
-      // Explicitly position the cursor at the end of the inserted content
-      editor.commands.focus('end');
-    }, 0);
     
     // Try to fetch task data to enhance the link
     try {
