@@ -54,13 +54,13 @@ export class ClickUpService {
           timeout: 10000, // 10 seconds timeout
         });
 
-        // this.logger.log(`Received response from ClickUp API: ${JSON.stringify(response.data, null, 2)}`);
-        this.logger.log(`Received response from ClickUp API`);
+        this.logger.log(`Received response from ClickUp API: ${JSON.stringify(response.data, null, 2)}`);
+        //this.logger.log(`Received response from ClickUp API`);
 
         const data = response.data;
         
         // Return simplified task data relevant for UI rendering
-        return {
+        const result = {
           id: data.id,
           name: data.name,
           status: {
@@ -73,12 +73,15 @@ export class ClickUpService {
           } : null,
           dueDate: data.due_date,
           listName: data.list ? data.list.name : null,
+          custom_item_id: data.custom_item_id,
           assignees: data.assignees ? data.assignees.map((assignee: any) => ({
             username: assignee.username,
             profilePicture: assignee.profilePicture,
           })) : [],
           url: data.url,
         };
+        this.logger.log(`Task details result: ${JSON.stringify(result, null, 2)}`);
+        return result;
       } catch (error: any) {
         this.logger.error(`Error fetching task ${taskId}: ${error.message}`);
         throw new HttpException(

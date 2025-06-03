@@ -133,6 +133,7 @@ export const ClickUpLinkExtension = Extension.create({
                     const taskName = taskData?.name || 'Задача ClickUp';
                     const statusColor = taskData?.status?.color || '#ddd';
                     const statusText = taskData?.status?.status || 'Статус';
+                    const taskType = taskData?.custom_item_id || 0;
                     
                     // Get priority info and determine color
                     let priorityColor = '#999'; // default gray
@@ -219,11 +220,45 @@ export const ClickUpLinkExtension = Extension.create({
                       </div>
                     `;
                     
+                    // Get task type icon based on custom_item_id
+                    const getTaskTypeIcon = (taskType: number) => {
+                      switch (taskType) {
+                        case 1: // milestone
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-rotated"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9.793 2.893l-6.9 6.9c-1.172 1.171 -1.172 3.243 0 4.414l6.9 6.9c1.171 1.172 3.243 1.172 4.414 0l6.9 -6.9c1.172 -1.171 1.172 -3.243 0 -4.414l-6.9 -6.9c-1.171 -1.172 -3.243 -1.172 -4.414 0z" /></svg>
+                          `;
+                        case 1001: // bug
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-bug"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 4a4 4 0 0 1 3.995 3.8l.005 .2a1 1 0 0 1 .428 .096l3.033 -1.938a1 1 0 1 1 1.078 1.684l-3.015 1.931a7.17 7.17 0 0 1 .476 2.227h3a1 1 0 0 1 0 2h-3v1a6.01 6.01 0 0 1 -.195 1.525l2.708 1.616a1 1 0 1 1 -1.026 1.718l-2.514 -1.501a6.002 6.002 0 0 1 -3.973 2.56v-5.918a1 1 0 0 0 -2 0v5.917a6.002 6.002 0 0 1 -3.973 -2.56l-2.514 1.503a1 1 0 1 1 -1.026 -1.718l2.708 -1.616a6.01 6.01 0 0 1 -.195 -1.526v-1h-3a1 1 0 0 1 0 -2h3.001v-.055a7 7 0 0 1 .474 -2.173l-3.014 -1.93a1 1 0 1 1 1.078 -1.684l3.032 1.939l.024 -.012l.068 -.027l.019 -.005l.016 -.006l.032 -.008l.04 -.013l.034 -.007l.034 -.004l.045 -.008l.015 -.001l.015 -.002l.087 -.004a4 4 0 0 1 4 -4zm0 2a2 2 0 0 0 -2 2h4a2 2 0 0 0 -2 -2z" /></svg>
+                          `;
+                        case 1002: // question
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="3"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-question-mark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 8a3.5 3 0 0 1 3.5 -3h1a3.5 3 0 0 1 3.5 3a3 3 0 0 1 -2 3a3 4 0 0 0 -2 4" /><path d="M12 19l0 .01" /></svg>
+                          `;
+                        case 1005: // group
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="3"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-border-corners"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M20 16v2a2 2 0 0 1 -2 2h-2" /><path d="M8 20h-2a2 2 0 0 1 -2 -2v-2" /><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /></svg>
+                          `;
+                        case 1007: // repeatable
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="3"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-reload"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" /></svg>
+                          `;
+                        case 3: // form_response
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-clipboard-text"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17.997 4.17a3 3 0 0 1 2.003 2.83v12a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 2.003 -2.83a4 4 0 0 0 3.997 3.83h4a4 4 0 0 0 3.98 -3.597zm-2.997 10.83h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m0 -4h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m-1 -9a2 2 0 1 1 0 4h-4a2 2 0 1 1 0 -4z" /></svg>
+                          `;
+                        default: // default circle
+                          return `
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 3.34a10 10 0 1 1 -4.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 4.995 -8.336z" /></svg>
+                          `;
+                      }
+                    };
+
                     // Create a single clickable link for the entire container
                     return `
                       <span class="clickup-link-container" data-task-id="${taskData?.id || ''}">
                         <a href="${url}" target="_blank" rel="noopener noreferrer" class="clickup-link-content">
-                          <span class="clickup-task-status" style="background-color: ${statusColor}"></span>
+                          <span class="clickup-task-status" style="color: ${statusColor}">${getTaskTypeIcon(taskType)}</span>
                           <span class="clickup-task-name">${taskName}</span>
                           <span class="clickup-external-link">
                             <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" fill="none">
@@ -278,7 +313,12 @@ export const ClickUpLinkExtension = Extension.create({
                         span.className = 'clickup-link-widget clickup-link-loading';
                         span.innerHTML = `
                           <span class="clickup-link-container">
-                            <span class="clickup-task-status" style="background-color: #ddd"></span>
+                            <span class="clickup-task-status" style="color: #ddd">
+                              <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                              </svg>
+                            </span>
                             <span class="clickup-task-name">Loading task...</span>
                           </span>
                         `;
@@ -455,10 +495,17 @@ if (typeof document !== 'undefined') {
     }
     
     .ProseMirror .clickup-task-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
       margin-right: 6px;
+    }
+    
+    .ProseMirror .clickup-task-status svg {
+      width: 16px;
+      height: 16px;
     }
   `;
   document.head.appendChild(style);

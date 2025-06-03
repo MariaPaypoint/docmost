@@ -112,7 +112,11 @@ export const ClickUpApi = {
             priority: taskData.priority || null,
             // Add assignees information
             assignees: taskData.assignees || [],
-            assignee: taskData.assignee || null
+            assignee: taskData.assignee || null,
+            url: taskData.url || null,
+            custom_item_id: taskData.custom_item_id || null,
+            dueDate: taskData.dueDate || null,
+            listName: taskData.listName || null,
           };
           
           // For debugging, output the full task data
