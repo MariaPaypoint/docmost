@@ -115,7 +115,7 @@ export const ClickUpApi = {
             assignee: taskData.assignee || null
           };
           
-          // Для отладки выведем полные данные задачи
+          // For debugging, output the full task data
           console.log('ClickUp Raw Task Data:', taskData);
           
           // Save to cache

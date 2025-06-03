@@ -54,8 +54,8 @@ export class ClickUpService {
           timeout: 10000, // 10 seconds timeout
         });
 
-        // this.logger.log(`Получен ответ от API ClickUp: ${JSON.stringify(response.data, null, 2)}`);
-        this.logger.log(`Получен ответ от API ClickUp`);
+        // this.logger.log(`Received response from ClickUp API: ${JSON.stringify(response.data, null, 2)}`);
+        this.logger.log(`Received response from ClickUp API`);
 
         const data = response.data;
         

@@ -66,6 +66,19 @@ export const ClickUpLinkExtension = Extension.create({
     const clickUpURLRegex = /https:\/\/app\.clickup\.com\/t\/([a-z0-9]+)/i;
     // Cache for task data to avoid redundant API calls
     const taskCache: Record<string, any> = {};
+    
+    // Store current decoration set to avoid unnecessary recomputation
+    let cachedDecorations: DecorationSet | null = null;
+    let lastDocVersion = 0;
+    
+    // Flag to track if we're currently loading tasks
+    let loadingTasks = false;
+    
+    // List of all tasks found in the document for batch loading
+    const documentTasks = new Set<string>();
+    
+    // Flag to force redraw of decorations after task data is loaded
+    let forceRedraw = false;
 
     return [
       new Plugin({
@@ -76,7 +89,27 @@ export const ClickUpLinkExtension = Extension.create({
           // Create decorations for ClickUp links
           decorations: (state) => {
             const { doc } = state;
+            
+            // Use a fingerprint of the document to detect real changes
+            // This prevents excessive re-rendering when cursor moves or selection changes
+            const docFingerprint = state.doc.nodeSize + state.selection.from;
+            
+            // Reuse cached decorations if document hasn't meaningfully changed and we're not loading tasks
+            // Also check forceRedraw flag to ensure decorations are updated after task data is loaded
+            if (cachedDecorations && docFingerprint === lastDocVersion && !loadingTasks && !forceRedraw) {
+              return cachedDecorations;
+            }
+            
+            // Reset forceRedraw flag after using it
+            if (forceRedraw) {
+              forceRedraw = false;
+            }
+            
+            // Update document fingerprint
+            lastDocVersion = docFingerprint;
+            
             const decorations: Decoration[] = [];
+            documentTasks.clear();
             
             // Find all link nodes
             doc.descendants((node: ProseMirrorNode, pos: number) => {
@@ -89,6 +122,8 @@ export const ClickUpLinkExtension = Extension.create({
                 
                 // If this is a ClickUp link
                 if (taskId) {
+                  // Add to document tasks list for batch loading
+                  documentTasks.add(taskId);
                   // Add decoration with custom rendering
                   const from = pos;
                   const to = pos + node.nodeSize;
@@ -132,18 +167,18 @@ export const ClickUpLinkExtension = Extension.create({
                       }
                     }
                     
-                    // Для отладки выведем в консоль информацию о задаче
+                    // For debugging, log task data and assignees
                     console.log('ClickUp Task Data:', taskData);
                     if (taskData?.assignees) {
                       console.log('Assignees:', taskData.assignees);
                     }
                     
-                    // Информация об исполнителях
+                    // For debugging, log assignee information
                     let assigneeNames = 'Не назначено';
                     
-                    // В ClickUp API исполнители могут быть в разных полях
+                    // In ClickUp API, assignees can be in different fields
                     if (taskData?.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
-                      // Пробуем получить имена из разных полей в API
+                      // Try to get names from different fields in the API
                       const names = taskData.assignees
                         .filter(a => a && (a.username || a.email || a.displayName || a.name))
                         .map(a => a.username || a.email || a.displayName || a.name)
@@ -153,7 +188,7 @@ export const ClickUpLinkExtension = Extension.create({
                         assigneeNames = names.join(', ');
                       }
                     } else if (taskData?.assignee) {
-                      // Альтернативное поле API
+                      // Alternative API field
                       assigneeNames = taskData.assignee.username || 
                                     taskData.assignee.email || 
                                     taskData.assignee.displayName || 
@@ -161,7 +196,7 @@ export const ClickUpLinkExtension = Extension.create({
                                     'Не назначено';
                     }
                     
-                    // Создаем HTML для отображения приоритета и флажка
+                    // Create HTML for priority flag
                     const priorityFlagHtml = priorityName ? `
                       <div class="clickup-tooltip-priority">
                         <span class="clickup-priority-flag" style="background-color: ${priorityColor}"></span>
@@ -184,7 +219,7 @@ export const ClickUpLinkExtension = Extension.create({
                       </div>
                     `;
                     
-                    // Создаем единую кликабельную ссылку на весь контейнер
+                    // Create a single clickable link for the entire container
                     return `
                       <span class="clickup-link-container" data-task-id="${taskData?.id || ''}">
                         <a href="${url}" target="_blank" rel="noopener noreferrer" class="clickup-link-content">
@@ -257,18 +292,9 @@ export const ClickUpLinkExtension = Extension.create({
                         class: 'clickup-link-hidden',
                       })
                     );
-                    // Fetch task data using centralized manager
-                    ClickUpTaskManager.getTask(taskId)
-                      .then(taskData => {
-                        // Store in local cache for fast rendering
-                        taskCache[taskId] = taskData;
-                        
-                        // Force re-render decorations
-                        this.editor?.view.dispatch(this.editor.state.tr);
-                      })
-                      .catch(error => {
-                        console.error('[ClickUpExt] Error fetching task:', error);
-                      });
+                    // Task loading is now handled in batch at the end of the decorations function
+                    // No need to load individual tasks here, they'll be loaded in a batch
+                    // This prevents multiple redraws for each task
                   }
                 }
               }
@@ -276,7 +302,59 @@ export const ClickUpLinkExtension = Extension.create({
               return true;
             });
             
-            return DecorationSet.create(doc, decorations);
+            // Cache the decorations
+            cachedDecorations = DecorationSet.create(doc, decorations);
+            
+            // If we found tasks that need to be loaded, load them in batch
+            if (!loadingTasks) {
+              const tasksToLoad = Array.from(documentTasks).filter(id => !taskCache[id]);
+              
+              if (tasksToLoad.length > 0) {
+                loadingTasks = true;
+                
+                // Load tasks sequentially to avoid hammering the server
+                const loadTasksBatch = async () => {
+                  for (const taskId of tasksToLoad) {
+                    try {
+                      console.log('Loading task data for:', taskId);
+                      // Get task data
+                      const taskData = await ClickUpTaskManager.getTask(taskId);
+                      // Save in cache
+                      taskCache[taskId] = taskData;
+                      
+                      // For debugging, log task data
+                      console.log('ClickUp Task Data:', taskData);
+                      if (taskData && 'assignees' in taskData) {
+                        console.log('Assignees:', (taskData as any).assignees);
+                      }
+                      // Data already fetched and logged above
+                    } catch (error) {
+                      console.error('[ClickUpExt] Error fetching task:', error);
+                    }
+                  }
+                  
+                  // Mark loading as complete and force one update
+                  loadingTasks = false;
+                  // Set flag to force redraw of decorations
+                  forceRedraw = true;
+                  
+                  // Force redraw of decorations
+                  if (this.editor) {
+                    // This transaction will force the editor to redraw decorations
+                    setTimeout(() => {
+                      if (this.editor) {
+                        this.editor.view.dispatch(this.editor.state.tr);
+                        // console.log('Forcing redraw after loading all tasks');
+                      }
+                    }, 10); // Small delay to ensure update
+                  }
+                };
+                
+                loadTasksBatch();
+              }
+            }
+            
+            return cachedDecorations;
           },
           
           // Handle clicks on ClickUp links
