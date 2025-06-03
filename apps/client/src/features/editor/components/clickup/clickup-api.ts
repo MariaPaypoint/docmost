@@ -107,8 +107,16 @@ export const ClickUpApi = {
               typeof taskData.status === 'object' ? 
                 taskData.status : 
                 { status: taskData.status, color: '#4bade8' }
-            ) : { status: 'in progress', color: '#4bade8' }
+            ) : { status: 'in progress', color: '#4bade8' },
+            // Add priority information
+            priority: taskData.priority || null,
+            // Add assignees information
+            assignees: taskData.assignees || [],
+            assignee: taskData.assignee || null
           };
+          
+          // Для отладки выведем полные данные задачи
+          console.log('ClickUp Raw Task Data:', taskData);
           
           // Save to cache
           taskCache[taskId] = {
