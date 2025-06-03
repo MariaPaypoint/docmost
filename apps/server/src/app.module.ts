@@ -16,6 +16,7 @@ import { ExportModule } from './integrations/export/export.module';
 import { ImportModule } from './integrations/import/import.module';
 import { SecurityModule } from './integrations/security/security.module';
 import { TelemetryModule } from './integrations/telemetry/telemetry.module';
+import { ClickUpModule } from './integrations/clickup/clickup.module';
 
 const enterpriseModules = [];
 try {
@@ -43,6 +44,7 @@ try {
     HealthModule,
     ImportModule,
     ExportModule,
+    ClickUpModule,
     StorageModule.forRootAsync({
       imports: [EnvironmentModule],
     }),

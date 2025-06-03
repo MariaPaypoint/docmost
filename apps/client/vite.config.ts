@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
     SUBDOMAIN_HOST,
     COLLAB_URL,
     BILLING_TRIAL_DAYS,
+    CLICKUP_API_KEY,
   } = loadEnv(mode, envPath, "");
 
   return {
@@ -25,6 +26,7 @@ export default defineConfig(({ mode }) => {
         SUBDOMAIN_HOST,
         COLLAB_URL,
         BILLING_TRIAL_DAYS,
+        CLICKUP_API_KEY,
       },
       APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
