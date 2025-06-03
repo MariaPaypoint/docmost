@@ -138,47 +138,8 @@ export const ClickUpLinkExtension = Extension.create({
                       console.log('Assignees:', taskData.assignees);
                     }
                     
-                    // Добавляем демо-приоритет, если нет данных от API
-                    // Так как в .env нет CLICKUP_API_KEY, мы добавляем демо-данные
-                    
-                    // Используем taskId для генерации демо-данных
-                    const priorityValues = [
-                      { priority: 'Низкий', color: '#999999' },
-                      { priority: 'Обычный', color: '#4573d2' },
-                      { priority: 'Высокий', color: '#f08c32' },
-                      { priority: 'Срочный', color: '#e50000' }
-                    ];
-                    
-                    // Выбираем приоритет на основе хеша taskId
-                    const hash = taskData.id.split('').reduce((a, b) => {
-                      a = ((a << 5) - a) + b.charCodeAt(0);
-                      return a & a;
-                    }, 0);
-                    
-                    // Добавляем приоритет, если его нет
-                    if (!taskData.priority) {
-                      const priorityIndex = Math.abs(hash) % priorityValues.length;
-                      taskData.priority = priorityValues[priorityIndex];
-                      console.log('Added demo priority:', taskData.priority);
-                    }
-                    
-                    // Добавляем демо-исполнителей
-                    const demoAssignees = [
-                      { username: 'Maria' },
-                      { username: 'Alex' },
-                      { username: 'Pavel' },
-                      { username: 'Irina' }
-                    ];
-                    
-                    // Get assignees - проверяем корректно
+                    // Информация об исполнителях
                     let assigneeNames = 'Не назначено';
-                    
-                    // Добавляем демо-исполнителей, если нет в API
-                    if (!taskData.assignees || taskData.assignees.length === 0) {
-                      const assigneeIndex = Math.abs(hash) % demoAssignees.length;
-                      taskData.assignees = [demoAssignees[assigneeIndex]];
-                      console.log('Added demo assignee:', taskData.assignees);
-                    }
                     
                     // В ClickUp API исполнители могут быть в разных полях
                     if (taskData?.assignees && Array.isArray(taskData.assignees) && taskData.assignees.length > 0) {
