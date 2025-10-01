@@ -8,12 +8,15 @@ export default defineConfig(({ mode }) => {
   const {
     APP_URL,
     FILE_UPLOAD_SIZE_LIMIT,
+    FILE_IMPORT_SIZE_LIMIT,
     DRAWIO_URL,
     CLOUD,
     SUBDOMAIN_HOST,
     COLLAB_URL,
     BILLING_TRIAL_DAYS,
     CLICKUP_API_KEY,
+    POSTHOG_HOST,
+    POSTHOG_KEY,
   } = loadEnv(mode, envPath, "");
 
   return {
@@ -21,12 +24,15 @@ export default defineConfig(({ mode }) => {
       "process.env": {
         APP_URL,
         FILE_UPLOAD_SIZE_LIMIT,
+        FILE_IMPORT_SIZE_LIMIT,
         DRAWIO_URL,
         CLOUD,
         SUBDOMAIN_HOST,
         COLLAB_URL,
         BILLING_TRIAL_DAYS,
         CLICKUP_API_KEY,
+        POSTHOG_HOST,
+        POSTHOG_KEY,
       },
       APP_VERSION: JSON.stringify(process.env.npm_package_version),
     },
