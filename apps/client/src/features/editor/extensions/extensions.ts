@@ -14,6 +14,7 @@ import SlashCommand from "@/features/editor/extensions/slash-command";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCursor } from "@tiptap/extension-collaboration-cursor";
 import { HocuspocusProvider } from "@hocuspocus/provider";
+import { ClickUpLinkExtension } from "@/features/editor/components/clickup/clickup-link-extension";
 import {
   Comment,
   Details,
@@ -129,6 +130,7 @@ export const mainExtensions = [
   LinkExtension.configure({
     openOnClick: false,
   }),
+  ClickUpLinkExtension,
   Superscript,
   SubScript,
   Highlight.configure({

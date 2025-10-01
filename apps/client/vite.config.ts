@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
     SUBDOMAIN_HOST,
     COLLAB_URL,
     BILLING_TRIAL_DAYS,
+    CLICKUP_API_KEY,
     POSTHOG_HOST,
     POSTHOG_KEY,
   } = loadEnv(mode, envPath, "");
@@ -29,6 +30,7 @@ export default defineConfig(({ mode }) => {
         SUBDOMAIN_HOST,
         COLLAB_URL,
         BILLING_TRIAL_DAYS,
+        CLICKUP_API_KEY,
         POSTHOG_HOST,
         POSTHOG_KEY,
       },
